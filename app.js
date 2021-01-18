@@ -1,7 +1,8 @@
 const express = require('express')
 const app = express()
-const logger = require('./logger')
-const httpLogger = require('./httpLogger')
+const logger = require('./loggers/logger')
+const httpLogger = require('./loggers/httpLogger')
+const Api500Error = require('./errors/api500Error')
 
 app.get('/bam', (req, res, next) => {
   console.log('Bam!')
@@ -25,7 +26,7 @@ app.get('/boom', (req, res, next) => {
 
 app.get('/errorhandler', (req, res, next) => {
   try {
-    throw new Error('Wowza!')
+    throw new Api500Error('Wowza!')
   } catch (error) {
     next(error)
   }
@@ -35,7 +36,7 @@ app.use(logErrors)
 app.use(errorHandler)
 
 function logErrors (err, req, res, next) {
-  console.error(err.stack)
+  console.error(err)
   next(err)
 }
 function errorHandler (err, req, res, next) {
