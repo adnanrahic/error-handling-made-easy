@@ -1,15 +1,7 @@
 const winston = require('winston')
+// const Logsene = require('winston-logsene')
 
 const options = {
-  file: {
-    level: 'info',
-    filename: `./logs/app.log`,
-    handleExceptions: true,
-    json: true,
-    maxsize: 5242880, // 5MB
-    maxFiles: 5,
-    colorize: false,
-  },
   console: {
     level: 'debug',
     handleExceptions: true,
@@ -21,8 +13,13 @@ const options = {
 const logger = winston.createLogger({
   levels: winston.config.npm.levels,
   transports: [
-    // new winston.transports.File(options.file),
-    new winston.transports.Console(options.console)
+    new winston.transports.Console(options.console),
+    // new Logsene({
+    //   token: process.env.LOGS_TOKEN,
+    //   level: 'debug',
+    //   type: 'app_logs',
+    //   url: 'https://logsene-receiver.sematext.com/_bulk'
+    // })
   ],
   exitOnError: false
 })

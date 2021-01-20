@@ -2,6 +2,13 @@ const express = require('express')
 const app = express()
 const logger = require('./loggers/logger')
 const httpLogger = require('./loggers/httpLogger')
+const {
+  logError,
+  logErrorMiddleware,
+  returnError,
+  isTrustedError
+} = require('./errorHandler')
+
 const Api500Error = require('./errors/api500Error')
 
 app.get('/bam', (req, res, next) => {
@@ -32,17 +39,16 @@ app.get('/errorhandler', (req, res, next) => {
   }
 })
 
-app.use(logErrors)
-app.use(errorHandler)
+app.use(logErrorMiddleware)
+app.use(returnError)
 
-function logErrors (err, req, res, next) {
-  console.error(err)
-  next(err)
-}
-function errorHandler (err, req, res, next) {
-  res.status(500).send('Error!')
-}
+process.on('uncaughtException', error => {
+  logError(error)
+
+  if (!isTrustedError(error)) {
+    process.exit(1)
+  }
+})
 
 const port = process.env.PORT || 80
-app.listen(port, () =>
-  logger.info(`Express.js listening on port ${port}.`))
+app.listen(port, () => logger.info(`Express.js listening on port ${port}.`))
